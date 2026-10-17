@@ -39,6 +39,8 @@ Install the APK on an ARCore-supported phone. The first launch asks for camera a
 
 ## Trying the pipeline without a phone
 
+On Windows, double-click **`Run Demo.bat`**. It builds the tool, makes a synthetic wall, stitches it, finds the notes and opens the result folder. Or by hand:
+
 ```bash
 ./gradlew :replay-cli:installDist
 replay-cli/build/install/swath-replay/bin/swath-replay generate sessions/demo --width-mm 6000
