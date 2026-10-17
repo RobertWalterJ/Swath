@@ -16,6 +16,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x gradlew
       - name: Test JVM modules
         run: ./gradlew :core:test :replay-cli:test -PwithAndroid=false --no-daemon
 
@@ -30,6 +31,7 @@ jobs:
           java-version: 17
       - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x gradlew
       - name: Build debug APK and run unit tests
         run: ./gradlew assembleDebug testDebugUnitTest --no-daemon
       - uses: actions/upload-artifact@v4
