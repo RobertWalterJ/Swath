@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- app_name and notes_mode_name are generated from gradle.properties. -->
+    <string name="library_title">Sessions</string>
+    <string name="library_empty">No walls yet. Tap New wall, stand about an arm and a half away, and walk the length of it.</string>
+    <string name="new_wall">New wall</string>
+    <string name="search">Search</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="done">Done</string>
+    <string name="fill_gaps">Fill gaps</string>
+    <string name="finish_anyway">Finish anyway</string>
+    <string name="gaps_prompt">There are gaps or weak areas inside what you captured.</string>
+    <string name="slow_down">Slow down</string>
+    <string name="move_closer">Move closer</string>
+    <string name="move_back">Move back</string>
+    <string name="face_wall">Face the wall</string>
+    <string name="level_phone">Level the phone</string>
+    <string name="tracking_lost">Point back at a captured area</string>
+    <string name="camera_permission">Camera access is needed to capture the wall.</string>
+    <string name="grant">Allow camera</string>
+    <string name="arcore_missing">This phone does not support ARCore, which the app needs to track your walk.</string>
+    <string name="processing">Processing</string>
+    <string name="failed">Failed</string>
+    <string name="share">Share</string>
+    <string name="export_pdf">PDF</string>
+    <string name="export_png">PNG</string>
+    <string name="export_jpeg">JPEG preview</string>
+    <string name="export_csv">CSV of notes</string>
+    <string name="export_json">JSON</string>
+    <string name="export_zip">Note images</string>
+    <string name="layer_notes">Notes</string>
+    <string name="layer_text">Text</string>
+    <string name="layer_weak">Weak areas</string>
+    <string name="notes_list">Notes list</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="restore">Restore</string>
+    <string name="recently_deleted">Recently deleted</string>
+    <string name="free_space">Free up space</string>
+    <string name="search_hint">Search all notes</string>
+    <string name="onboarding_title">How to capture</string>
+    <string name="onboarding_body">Stand about an arm and a half from the wall. Point at it and tap the wall to lock on. Tap Start, walk the length of it at a steady pace, and watch the map at the top fill in. Sweep over any dark gaps, then tap Done.</string>
+    <string name="got_it">Got it</string>
+</resources>

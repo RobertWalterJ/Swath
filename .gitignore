@@ -1,0 +1,13 @@
+.gradle/
+build/
+*.iml
+.idea/
+local.properties
+build-log.txt
+*.keystore
+*.jks
+captures/
+.externalNativeBuild/
+.cxx/
+# Recorded sessions and replay output
+sessions/

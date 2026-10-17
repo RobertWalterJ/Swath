@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core:
+    name: Core tests and replay CLI (JVM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test JVM modules
+        run: ./gradlew :core:test :replay-cli:test -PwithAndroid=false --no-daemon
+
+  android:
+    name: Android debug build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK and run unit tests
+        run: ./gradlew assembleDebug testDebugUnitTest --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swath-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
