@@ -40,9 +40,14 @@ class SessionProcessor(private val context: Context, private val dao: SessionDao
             val meta = PyramidMeta(pyr.levels, pyr.widthPx, pyr.heightPx, pyr.tilePx, cfg.pxPerMm)
             PyramidMeta.write(tiles, meta)
 
-            // The top pyramid level is a single tile: use it as the preview and the thumbnail.
+            // The thumbnail and previews come from a pyramid level at least 1200 px wide, so cards stay sharp.
             val mosaicDir = store.mosaic(id)
-            File(tiles, "${pyr.levels - 1}/0_0.jpg").takeIf { it.exists() }?.copyTo(File(mosaicDir, "preview.jpg"), overwrite = true)
+            val reader0 = TileReader(tiles, meta)
+            var previewLevel = meta.levels - 1
+            while (previewLevel > 0 && meta.levelWidth(previewLevel) < 1200) previewLevel--
+            val preview = reader0.region(previewLevel, 0, 0, meta.levelWidth(previewLevel), meta.levelHeight(previewLevel))
+            File(mosaicDir, "preview.jpg").outputStream().use { preview.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
+            preview.recycle()
 
             val notesDir = store.notes(id)
             for ((noteId, crop) in result.crops) File(notesDir, "$noteId.jpg").writeBytes(codec.encodeJpeg(crop, 92))

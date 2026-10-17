@@ -1,162 +1,263 @@
 package app.wallcapture.app
 
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Inventory2
+import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.HelpOutline
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import app.wallcapture.app.ui.Copy
+import app.wallcapture.app.ui.NoteColours
+import app.wallcapture.app.ui.PrimaryButton
+import app.wallcapture.app.ui.RoundIconButton
+import app.wallcapture.app.ui.Space
 import app.wallcapture.storage.SessionEntity
 import java.io.File
 import java.text.DateFormat
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(vm: AppViewModel) {
     val sessions by vm.sessions.collectAsState()
-    val deleted by vm.deleted.collectAsState()
-    var showDeleted by remember { mutableStateOf(false) }
+    var manage by remember { mutableStateOf<SessionEntity?>(null) }
     var settings by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
-                actions = {
-                    IconButton(onClick = { vm.screen = Screen.Search }) { Icon(Icons.Default.Search, stringResource(R.string.search)) }
-                    IconButton(onClick = { settings = true }) { Icon(Icons.Default.Settings, "Settings") }
-                },
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { vm.newSession() }) { Text(stringResource(R.string.new_wall)) }
-        },
-    ) { pad ->
-        LazyColumn(Modifier.fillMaxSize().padding(pad).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { pad ->
+        LazyColumn(
+            Modifier.fillMaxSize().statusBarsPadding().padding(pad),
+            contentPadding = PaddingValues(start = Space.edge, end = Space.edge, top = Space.lg, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(Space.lg),
+        ) {
+            item {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(Copy.HOME_TITLE, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
+                    RoundIconButton(Icons.Rounded.Settings, Copy.SETTINGS, { settings = true }, container = MaterialTheme.colorScheme.surfaceVariant)
+                }
+            }
+            item { SearchField(onClick = { vm.screen = Screen.Search }) }
             if (sessions.isEmpty()) {
-                item { Text(stringResource(R.string.library_empty), Modifier.padding(vertical = 32.dp), style = MaterialTheme.typography.bodyLarge) }
+                item { EmptyHome(onNew = { vm.newSession() }) }
+            } else {
+                item { PrimaryButton(Copy.NEW_WALL, onClick = { vm.newSession() }, modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.Add) }
+                items(sessions, key = { it.id }) { s -> WallCard(vm, s, onManage = { manage = s }) }
             }
-            items(sessions, key = { it.id }) { s -> SessionRow(vm, s) }
-            if (deleted.isNotEmpty()) {
-                item {
-                    TextButton(onClick = { showDeleted = !showDeleted }) { Text(stringResource(R.string.recently_deleted) + " (${deleted.size})") }
-                }
-                if (showDeleted) items(deleted, key = { "d" + it.id }) { s ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(s.title)
-                        TextButton(onClick = { vm.restore(s.id) }) { Text(stringResource(R.string.restore)) }
-                    }
-                }
-            }
-            item { Box(Modifier.size(80.dp)) }
         }
     }
 
-    if (settings) {
-        AlertDialog(
-            onDismissRequest = { settings = false },
-            confirmButton = { TextButton(onClick = { settings = false }) { Text(stringResource(R.string.save)) } },
-            title = { Text("Output resolution") },
-            text = {
-                Column {
-                    for (v in listOf(3.0, 4.0, 6.0)) {
-                        Row(Modifier.fillMaxWidth().clickable { vm.pxPerMm = v; settings = false }.padding(vertical = 10.dp)) {
-                            Text("${v.toInt()} px per mm" + if (vm.pxPerMm == v) "  (current)" else "")
-                        }
-                    }
-                }
-            },
-        )
+    manage?.let { s -> ManageSheet(vm, s, onClose = { manage = null }) }
+    if (settings) SettingsSheet(vm, onClose = { settings = false })
+}
+
+@Composable
+private fun SearchField(onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().height(56.dp).clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraLarge)
+            .clickable(onClick = onClick).padding(horizontal = Space.lg),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Rounded.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(Copy.SEARCH_HINT, Modifier.padding(start = Space.md), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
 @Composable
-private fun SessionRow(vm: AppViewModel, s: SessionEntity) {
-    var menu by remember { mutableStateOf(false) }
-    var renaming by remember { mutableStateOf(false) }
+private fun EmptyHome(onNew: () -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(top = Space.xl), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(Space.lg)) {
+        Canvas(Modifier.fillMaxWidth().aspectRatio(1.7f).clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surfaceVariant)) {
+            val pad = size.width * 0.08f
+            drawRoundRect(Color(0xFFD9C7A6), Offset(pad, pad), Size(size.width - 2 * pad, size.height - 2 * pad), CornerRadius(18f))
+            val names = listOf("yellow", "pink", "green", "blue", "orange", "purple", "yellow", "green", "pink", "blue")
+            val cols = 5
+            val cell = (size.width - 2 * pad) / cols
+            for (i in names.indices) {
+                val r = i / cols; val c = i % cols
+                val s = cell * 0.52f
+                drawRoundRect(NoteColours.of(names[i]), Offset(pad + c * cell + (cell - s) / 2, pad + cell * 0.25f + r * cell * 0.95f), Size(s, s), CornerRadius(5f))
+            }
+        }
+        Text(Copy.EMPTY_TITLE, style = MaterialTheme.typography.headlineMedium)
+        Text(Copy.EMPTY_BODY, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PrimaryButton(Copy.NEW_WALL, onClick = onNew, modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.Add)
+    }
+}
+
+@Composable
+private fun WallCard(vm: AppViewModel, s: SessionEntity, onManage: () -> Unit) {
     val busy = vm.progress[s.id]
-    val sizeMb = remember(s.id, s.status) { vm.sizeOf(s.id) / 1_048_576 }
+    val notes by produceState(0, s.id, s.status) { value = vm.noteCount(s.id) }
     val thumb = remember(s.id, s.status) {
         File(vm.store.mosaic(s.id), "preview.jpg").takeIf { it.exists() }?.let { BitmapFactory.decodeFile(it.path)?.asImageBitmap() }
     }
-    Card(
-        Modifier.fillMaxWidth().clickable(enabled = s.status == "ready") { vm.screen = Screen.Viewer(s.id) },
+    val ready = s.status == "ready" && busy == null
+    Column(
+        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
+            .clickable {
+                when {
+                    ready -> vm.screen = Screen.Viewer(s.id)
+                    busy != null || s.status == "processing" -> vm.screen = Screen.Processing(s.id)
+                }
+            },
     ) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(width = 96.dp, height = 64.dp)) {
-                if (thumb != null) Image(thumb, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        Box(Modifier.fillMaxWidth().aspectRatio(2.3f).background(MaterialTheme.colorScheme.surfaceVariant)) {
+            if (thumb != null) Image(thumb, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            Box(Modifier.align(Alignment.TopEnd).padding(Space.sm)) {
+                RoundIconButton(Icons.Rounded.MoreHoriz, Copy.MANAGE, onManage)
             }
-            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                Text(s.title, style = MaterialTheme.typography.titleMedium)
-                Text(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(s.createdAt)), style = MaterialTheme.typography.bodySmall)
-                val status = when {
-                    busy != null -> stringResource(R.string.processing) + ": " + busy
-                    s.status == "failed" -> stringResource(R.string.failed) + ": " + s.progress
-                    s.status == "ready" -> "%.1f m wide, %d MB".format(s.wallWidthMm / 1000.0, sizeMb)
-                    else -> s.status
+        }
+        Column(Modifier.padding(Space.lg), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Text(s.title, style = MaterialTheme.typography.titleMedium)
+            when {
+                busy != null || s.status == "processing" -> {
+                    Text(Copy.STATUS_WORKING, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = Space.xs))
                 }
-                Text(status, style = MaterialTheme.typography.bodySmall)
-            }
-            Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "More") }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(text = { Text(stringResource(R.string.rename)) }, onClick = { menu = false; renaming = true })
-                    DropdownMenuItem(text = { Text("Duplicate") }, onClick = { menu = false; vm.duplicate(s.id) })
-                    DropdownMenuItem(text = { Text(stringResource(R.string.free_space)) }, onClick = { menu = false; vm.freeUp(s.id) })
-                    if (s.status == "failed" || s.status == "capturing") {
-                        DropdownMenuItem(text = { Text("Process again") }, onClick = { menu = false; vm.process(s.id) })
-                    }
-                    DropdownMenuItem(text = { Text(stringResource(R.string.delete)) }, onClick = { menu = false; vm.delete(s.id) })
+                s.status == "failed" -> {
+                    Text(Copy.STATUS_FAILED, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = { vm.process(s.id) }, modifier = Modifier.padding(0.dp)) { Text(Copy.TRY_AGAIN) }
                 }
+                s.status == "capturing" -> {
+                    TextButton(onClick = { vm.process(s.id) }) { Text(Copy.MAKE_WALL) }
+                }
+                else -> Text(
+                    "%.1f m wide  ·  %d notes  ·  %s".format(s.wallWidthMm / 1000.0, notes, DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(s.createdAt))),
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+        }
+    }
+}
+
+// ---- Sheets --------------------------------------------------------------------------------------------------------
+
+@Composable
+private fun SheetRow(icon: ImageVector, title: String, help: String? = null, danger: Boolean = false, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = Space.edge, vertical = Space.md), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+        Column(Modifier.padding(start = Space.lg)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+            if (help != null) Text(help, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ManageSheet(vm: AppViewModel, s: SessionEntity, onClose: () -> Unit) {
+    var renaming by remember { mutableStateOf(false) }
+    ModalBottomSheet(onDismissRequest = onClose, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.padding(bottom = Space.xxl)) {
+            Text(s.title, Modifier.padding(horizontal = Space.edge, vertical = Space.sm), style = MaterialTheme.typography.titleLarge)
+            SheetRow(Icons.Rounded.Edit, Copy.RENAME) { renaming = true }
+            SheetRow(Icons.Rounded.ContentCopy, Copy.COPY) { vm.duplicate(s.id); onClose() }
+            SheetRow(Icons.Rounded.Inventory2, Copy.FREE_SPACE, Copy.FREE_SPACE_HELP) { vm.freeUp(s.id); onClose() }
+            HorizontalDivider(Modifier.padding(vertical = Space.sm), color = MaterialTheme.colorScheme.outlineVariant)
+            SheetRow(Icons.Rounded.Delete, Copy.DELETE, Copy.DELETE_HELP, danger = true) { vm.delete(s.id); onClose() }
         }
     }
     if (renaming) {
         var text by remember { mutableStateOf(s.title) }
         AlertDialog(
             onDismissRequest = { renaming = false },
-            title = { Text(stringResource(R.string.rename)) },
-            text = { OutlinedTextField(text, { text = it }, singleLine = true) },
-            confirmButton = { TextButton(onClick = { vm.rename(s.id, text); renaming = false }) { Text(stringResource(R.string.save)) } },
-            dismissButton = { TextButton(onClick = { renaming = false }) { Text(stringResource(R.string.cancel)) } },
+            title = { Text(Copy.RENAME) },
+            text = { OutlinedTextField(text, { text = it }, singleLine = true, modifier = Modifier.fillMaxWidth()) },
+            confirmButton = { TextButton(onClick = { vm.rename(s.id, text); renaming = false; onClose() }) { Text(Copy.SAVE) } },
+            dismissButton = { TextButton(onClick = { renaming = false }) { Text(Copy.CANCEL) } },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsSheet(vm: AppViewModel, onClose: () -> Unit) {
+    val deleted by vm.deleted.collectAsState()
+    var level by remember { mutableStateOf(vm.pxPerMm) }
+    ModalBottomSheet(onDismissRequest = onClose, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.padding(bottom = Space.xxl)) {
+            Text(Copy.SETTINGS, Modifier.padding(horizontal = Space.edge, vertical = Space.sm), style = MaterialTheme.typography.titleLarge)
+            Text(Copy.DETAIL_TITLE, Modifier.padding(horizontal = Space.edge, vertical = Space.sm), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            listOf(
+                Triple(3.0, Copy.DETAIL_STANDARD, Copy.DETAIL_STANDARD_HELP),
+                Triple(4.0, Copy.DETAIL_HIGH, Copy.DETAIL_HIGH_HELP),
+                Triple(6.0, Copy.DETAIL_MAX, Copy.DETAIL_MAX_HELP),
+            ).forEach { (v, name, help) ->
+                Row(Modifier.fillMaxWidth().clickable { level = v; vm.pxPerMm = v }.padding(horizontal = Space.edge, vertical = Space.md), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(24.dp).clip(CircleShape).border(2.dp, if (level == v) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, CircleShape), contentAlignment = Alignment.Center) {
+                        if (level == v) Icon(Icons.Rounded.Check, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Column(Modifier.padding(start = Space.lg)) {
+                        Text(name, style = MaterialTheme.typography.titleMedium)
+                        Text(help, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            HorizontalDivider(Modifier.padding(vertical = Space.sm), color = MaterialTheme.colorScheme.outlineVariant)
+            SheetRow(Icons.Rounded.HelpOutline, Copy.HOW_IT_WORKS) { vm.showHowTo = true; onClose() }
+            if (deleted.isNotEmpty()) {
+                Text(Copy.DELETED_TITLE, Modifier.padding(horizontal = Space.edge, vertical = Space.sm).semantics { contentDescription = Copy.DELETED_TITLE }, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                deleted.forEach { d -> SheetRow(Icons.Rounded.Restore, d.title, Copy.RESTORE) { vm.restore(d.id) } }
+            }
+        }
     }
 }

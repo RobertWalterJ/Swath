@@ -1,0 +1,148 @@
+package app.wallcapture.app.ui
+
+/**
+ * Every line of words in the app. Plain writing standard: 20 words or fewer per sentence, main message first,
+ * plain words, no idiom. A unit test checks the sentence length. The product name is passed in, never typed here.
+ */
+object Copy {
+    // Home
+    const val HOME_TITLE = "Your walls"
+    const val SEARCH_HINT = "Search every note"
+    const val NEW_WALL = "New wall"
+    const val EMPTY_TITLE = "Capture your first wall"
+    const val EMPTY_BODY = "Walk past a whiteboard or a wall of sticky notes. You get one clear picture and a list of every note."
+    const val STATUS_WORKING = "Making your wall"
+    const val STATUS_FAILED = "This wall needs another try"
+    const val TRY_AGAIN = "Try again"
+    const val SETTINGS = "Settings"
+    const val MANAGE = "Manage"
+    const val RENAME = "Rename"
+    const val COPY = "Make a copy"
+    const val FREE_SPACE = "Free up space"
+    const val FREE_SPACE_HELP = "Deletes the original photos. Your wall, notes and exports stay."
+    const val DELETE = "Delete"
+    const val DELETE_HELP = "Moves it to Recently deleted for 30 days."
+    const val SAVE = "Save"
+    const val CANCEL = "Cancel"
+    const val DONE = "Done"
+
+    // Settings
+    const val DETAIL_TITLE = "Picture detail"
+    const val DETAIL_STANDARD = "Standard"
+    const val DETAIL_STANDARD_HELP = "Smaller files and a faster result."
+    const val DETAIL_HIGH = "High"
+    const val DETAIL_HIGH_HELP = "A good balance. Most walls need nothing more."
+    const val DETAIL_MAX = "Maximum"
+    const val DETAIL_MAX_HELP = "Best for small handwriting. Uses more space and time."
+    const val DELETED_TITLE = "Recently deleted"
+    const val RESTORE = "Restore"
+    const val HOW_IT_WORKS = "How it works"
+
+    // How it works
+    const val HOWTO_1_TITLE = "Aim at the wall"
+    const val HOWTO_1_BODY = "Stand about an arm and a half away. Point the phone at the wall, then tap it."
+    const val HOWTO_2_TITLE = "Walk sideways"
+    const val HOWTO_2_BODY = "Tap Start walking. Move along the wall at a steady pace. Keep it in view."
+    const val HOWTO_3_TITLE = "Check the map"
+    const val HOWTO_3_BODY = "The map at the top fills in as you go. Sweep over any dark gaps, then finish."
+    const val NEXT = "Next"
+    const val SKIP = "Skip"
+    const val START = "Get started"
+    const val LISTEN = "Listen"
+
+    // Capture
+    const val STAGE_AIM = "Aim"
+    const val STAGE_READY = "Ready"
+    const val STAGE_WALK = "Walk"
+    const val STAGE_CHECK = "Check"
+    const val AIM_SEARCHING = "Point the phone at the wall. Move slowly."
+    const val AIM_FOUND = "Tap the wall to lock on."
+    const val READY_BODY = "Stand about 1.2 metres from the wall. Then tap Start walking."
+    const val START_WALKING = "Start walking"
+    const val WALK_BODY = "Walk sideways at a steady pace. Keep the wall in view."
+    const val FINISH = "Finish"
+    const val PAUSE = "Pause"
+    const val HINT_SLOW = "Slow down."
+    const val HINT_CLOSER = "Move a little closer."
+    const val HINT_BACK = "Move back a little."
+    const val HINT_FACE = "Turn to face the wall."
+    const val HINT_LEVEL = "Hold the phone level."
+    const val HINT_LOST = "Point back at a part you already captured."
+    const val CHECK_GOOD_TITLE = "That looks complete"
+    const val CHECK_GOOD_BODY = "Every part of the wall was captured clearly."
+    const val CHECK_GAPS_TITLE = "Some parts are missing"
+    const val CHECK_GAPS_BODY = "Dark or amber areas on the map were missed or look blurry. You can go back for them."
+    const val GO_BACK = "Keep walking"
+    const val MAKE_WALL = "Make my wall"
+    const val LEAVE_TITLE = "Leave this capture?"
+    const val LEAVE_BODY = "You can make a wall from what you have, or delete it."
+    const val NO_CAMERA = "Camera access is needed to capture a wall."
+    const val ALLOW_CAMERA = "Allow camera"
+    const val NO_AR = "This phone cannot track movement the way Swath needs."
+    const val MAP_LABEL = "Map of the wall captured so far"
+    const val LEGEND_GOOD = "Clear"
+    const val LEGEND_WEAK = "Blurry or at an angle"
+    const val LEGEND_MISSING = "Not captured"
+
+    // Making the wall
+    const val MAKING_TITLE = "Making your wall"
+    const val MAKING_BODY = "This takes about a minute. You can leave this screen. It keeps working."
+    const val STEP_ALIGN = "Line up the photos"
+    const val STEP_JOIN = "Join them into one picture"
+    const val STEP_FIND = "Find the sticky notes"
+    const val STEP_READ = "Read the notes"
+    const val READY_TITLE = "Your wall is ready"
+    const val OPEN_WALL = "Open my wall"
+    const val BACK_HOME = "Back to my walls"
+    const val FAILED_TITLE = "Something went wrong"
+
+    // Your wall
+    const val MODE_WALL = "Wall"
+    const val MODE_NOTES = "Notes"
+    const val LAYERS = "Layers"
+    const val LAYER_OUTLINES = "Note outlines"
+    const val LAYER_TEXT = "Note text"
+    const val GROUP_BY = "Group by"
+    const val GROUP_THEME = "Theme"
+    const val GROUP_COLOUR = "Colour"
+    const val GROUP_POSITION = "Position"
+    const val NO_NOTES = "No sticky notes were found on this wall."
+    const val NOTE_TEXT = "What the note says"
+    const val NOTE_COLOUR = "Colour"
+    const val NO_TEXT = "No text found"
+    const val NOT_READY = "This wall is not ready yet."
+
+    // Share
+    const val SHARE = "Share"
+    const val SHARE_TITLE = "Share this wall"
+    const val SHARE_REPORT = "Report"
+    const val SHARE_REPORT_HELP = "A PDF with a cover, every note listed by theme, and detail pages."
+    const val SHARE_PICTURE = "Picture"
+    const val SHARE_PICTURE_HELP = "One image of the whole wall, ready for email or chat."
+    const val SHARE_NOTES = "Notes spreadsheet"
+    const val SHARE_NOTES_HELP = "One row per note. Opens in Excel."
+    const val SHARE_MORE = "More ways to share"
+    const val SHARE_PNG = "Full detail image"
+    const val SHARE_PNG_HELP = "A PNG for printing or editing."
+    const val SHARE_JSON = "Data file"
+    const val SHARE_JSON_HELP = "Everything about the wall, for other tools."
+    const val SHARE_ZIP = "Note photos"
+    const val SHARE_ZIP_HELP = "A zip with one photo for each note."
+    const val BUILDING = "Building your file"
+    const val BUILD_FAILED = "That did not work. Please try again."
+    const val RECOMMENDED = "Recommended"
+
+    // Search
+    const val SEARCH = "Search"
+    const val ANY_COLOUR = "Any colour"
+    const val ANY_TIME = "Any time"
+    const val LAST_7 = "Last 7 days"
+    const val LAST_30 = "Last 30 days"
+    const val SEARCH_EMPTY = "Type a word to find it on any wall."
+    const val SEARCH_NONE = "No notes match."
+
+    /** Every sentence-bearing string, for the plain-writing test. */
+    fun all(): List<String> = Copy::class.java.declaredFields
+        .filter { it.type == String::class.java && java.lang.reflect.Modifier.isStatic(it.modifiers) && it.name != "INSTANCE" }
+        .mapNotNull { f -> f.isAccessible = true; f.get(null) as? String }
+}

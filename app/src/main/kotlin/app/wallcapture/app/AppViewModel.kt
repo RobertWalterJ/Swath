@@ -25,6 +25,7 @@ import java.io.File
 sealed interface Screen {
     data object Library : Screen
     data class Capture(val sessionId: String) : Screen
+    data class Processing(val sessionId: String) : Screen
     data class Viewer(val sessionId: String, val focusNoteId: String? = null) : Screen
     data object Search : Screen
 }
@@ -38,6 +39,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     var screen by mutableStateOf<Screen>(Screen.Library)
     val progress = mutableStateMapOf<String, String>()
+    var showHowTo by mutableStateOf(false)
 
     val sessions = dao.observeSessions().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val deleted = dao.observeDeleted().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -70,9 +72,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Called when the user taps Done: capture is over, processing starts. */
     fun finishCapture(id: String) {
-        screen = Screen.Library
+        screen = Screen.Processing(id)
         process(id)
     }
+
+    suspend fun noteCount(id: String): Int = withContext(Dispatchers.IO) { dao.noteCount(id) }
 
     fun process(id: String) {
         viewModelScope.launch {

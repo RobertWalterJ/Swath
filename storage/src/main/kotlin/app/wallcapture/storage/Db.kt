@@ -139,6 +139,9 @@ interface SessionDao {
     @Query("DELETE FROM NoteEntity WHERE sessionId = :sessionId")
     suspend fun clearNotes(sessionId: String)
 
+    @Query("SELECT COUNT(*) FROM NoteEntity WHERE sessionId = :sessionId")
+    suspend fun noteCount(sessionId: String): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertBlocks(b: List<TextBlockEntity>)
 

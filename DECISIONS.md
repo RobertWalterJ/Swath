@@ -57,3 +57,17 @@ Where `SPEC.md` did not settle something, or where the simplest option that meet
 ## Names
 
 `appName`, `appSlug` and `notesModeName` are in `gradle.properties` only. They feed `@string/app_name`, `@string/notes_mode_name`, the application ID (`app.wallcapture.<appSlug>`) and the replay CLI binary name (`<appSlug>-replay`). Package names are the neutral `app.wallcapture.*`.
+
+## Design pass (17 Oct 2026)
+
+See `DESIGN.md` for the critique and the new flow. Decisions that went beyond it:
+
+- **No auto-fading hints.** The spec says hints fade after 2 seconds. Robert is dyslexic and uses no timers by default, so a hint stays while its cause is true and disappears when the cause goes.
+- **Read-aloud everywhere text is longer than a line.** One shared Android text-to-speech engine; a speaker icon sits beside the how-to cards, every capture instruction, the check result and the note editor.
+- **Plain-writing check as a unit test.** `PlainWritingTest` fails the build when any line in `Copy.kt` runs over 20 words per sentence or uses a banned phrase.
+- **Colour is never the only cue.** Weak map areas use amber with stripes. Notes use a swatch with the colour's letter plus the colour name.
+- **Processing has its own screen** and never opens the finished wall by itself. A button does that.
+- **The old modal onboarding became a three-page how-to** that can be reopened from Settings.
+- **The share sheet replaced a six-item menu.** Report, Picture and Notes spreadsheet are the main choices. PNG, JSON and the note-photo zip sit under "More ways to share".
+- **Report and Picture are generated with Android's own graphics and PDF classes**, with the same palette as the app, so no new libraries were added.
+- **Not yet done:** none of this has been run on a phone. The mockups are renders of the design, not screenshots of the app.
